@@ -6,8 +6,8 @@
 from which_pyqt import PYQT_VER
 if PYQT_VER == 'PYQT5':
 	from PyQt5.QtCore import QLineF, QPointF, QThread, pyqtSignal
-elif PYQT_VER == 'PYQT4':
-	from PyQt4.QtCore import QLineF, QPointF, QThread, pyqtSignal
+# elif PYQT_VER == 'PYQT4':
+# 	from PyQt4.QtCore import QLineF, QPointF, QThread, pyqtSignal
 else:
 	raise Exception('Unsupported Version of PyQt: {}'.format(PYQT_VER))
 
@@ -35,6 +35,7 @@ class ConvexHullSolverThread(QThread):
 	erase_tangent = pyqtSignal(list)
 					
 
+
 	def run( self):
 		assert( type(self.points) == list and type(self.points[0]) == QPointF )
 
@@ -42,7 +43,8 @@ class ConvexHullSolverThread(QThread):
 		print( 'Computing Hull for set of {} points'.format(n) )
 
 		t1 = time.time()
-		# TODO: SORT THE POINTS BY INCREASING X-VALUE
+		sortedPoints = ConvexHullSolverThread.sortPoints(self.points)
+
 		t2 = time.time()
 		print('Time Elapsed (Sorting): {:3.3f} sec'.format(t2-t1))
 
@@ -63,12 +65,37 @@ class ConvexHullSolverThread(QThread):
 
 		else:
 			# TODO: PASS THE CONVEX HULL LINES BACK TO THE GUI FOR DISPLAY
+			answer = ConvexHullSolverThread.split(sortedPoints)
 			pass
 			
 		# send a signal to the GUI thread with the time used to compute the hull
 		self.display_text.emit('Time Elapsed (Convex Hull): {:3.3f} sec'.format(t4-t3))
 		print('Time Elapsed (Convex Hull): {:3.3f} sec'.format(t4-t3))
-			
 
+	def split(points):
+		if len(points) == 1:
+			return points
+
+		left = points[:len(points)//2]
+		right = points[len(points)//2:]
+
+		lHull = ConvexHullSolverThread.split(left)
+		rHull = ConvexHullSolverThread.split(right)
+
+		return ConvexHullSolverThread.connect(lHull, rHull)
+
+
+
+	def connect(points):
+		return list
+
+	def sortPoints(points):
+		points.sort(key=ConvexHullSolverThread.myFunc)
+
+	def myFunc(point):
+		return point.x()
+
+	def convexHull(self):
+		return self
 
 
